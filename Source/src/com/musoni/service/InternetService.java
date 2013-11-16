@@ -26,24 +26,39 @@ public class InternetService implements IService {
 	public static class HandlerWrapper implements Runnable{
 		
 		private HttpUriRequest req = null;
-		private ResultHandler handler = null;
+		private ResultHandler result = null;
 		
-		public HandlerWrapper(HttpUriRequest req, ResultHandler handler) {
+		public HandlerWrapper(HttpUriRequest req, ResultHandler result) {
 			this.req = req;
-			this.handler = handler;
+			this.result = result;
 		}
 		
 		public void run() {
 			
 			try{
-				HttpResponse response = MusoniSSLSocketFactory.getNewHttpClient().execute(req);
+				HttpResponse res = MusoniSSLSocketFactory.getNewHttpClient().execute(req);
 				
-				String retStr = EntityUtils.toString(response.getEntity());
+				String retStr = EntityUtils.toString(res.getEntity());
 				
-				JSONObject ret = new JSONObject(retStr);				
+				JSONObject response = new JSONObject(retStr);
+				
+				if(response != null && !response.has("errors"))
+				{
+					result.setResult(response);
+					result.setStatus(ResultHandler.SUCCESS);
+					result.success();
+				}
+				else{
+					result.setStatus(ResultHandler.ERROR);
+					result.setResult(response.getJSONObject("errors"));
+					result.setReason("Error has occured check result for detailed information");
+					result.fail();
+				}
 			}
 			catch(Exception ex){
-				
+				result.setStatus(ResultHandler.ERROR);
+				result.setReason(ex.getMessage().toString());
+				result.fail();
 			}
 			
 		}
@@ -70,20 +85,16 @@ public class InternetService implements IService {
 		params.put("password", password);
 		
 		try {
-			JSONObject ret = getJSON(baseURL+"authentication", params, "post", null);
-			userId = ret.getString("userId");
+			getJSON(baseURL+"authentication", params, "post", null, result);
+			/*userId = ret.getString("userId");
 			username = ret.getString("username");
 			result.setStatus(ResultHandler.SUCCESS);
 			active = true;
 			result.setResult(ret);
-			result.success();
+			result.success();*/
 		}
 		catch(Exception e) {
-			active = false;
-			result.setStatus(ResultHandler.ERROR);
-			result.setReason("");
-			// TODO try wrong
-			result.fail();
+			
 		}
 		
 	}
@@ -134,42 +145,28 @@ public class InternetService implements IService {
 	}
 	
 	@SuppressLint("DefaultLocale")
-	public JSONObject getJSON(String apiUrl, Map<String, String> urlParams, String method, JSONObject prm) throws Exception {
-
+	public void getJSON(String apiUrl, Map<String, String> urlParams, String method, JSONObject prm, ResultHandler result) throws Exception {
+		HttpUriRequest req = null;
 		BasicHttpParams parameters = new BasicHttpParams();
 		for(String key: urlParams.keySet()) 
 			parameters.setParameter(key, urlParams.get(key));
 		
 		if (method.toLowerCase().equals("post")) {
 			
-			HttpPost post = preparePost(apiUrl, urlParams);
-			post.setParams(parameters);
+			req = preparePost(apiUrl, urlParams);
+			req.setParams(parameters);
 			
 			if (prm != null) {
 				StringEntity p = new StringEntity(prm.toString());
-				post.setEntity(p);
+				((HttpResponse) req).setEntity(p);
 			}
-			
-			HttpResponse response = MusoniSSLSocketFactory.getNewHttpClient().execute(post);
-			
-			String retStr = EntityUtils.toString(response.getEntity());
-			
-			JSONObject ret = new JSONObject(retStr);
-			
-			return ret;
 		}
 		else {
-			HttpGet get = prepareGet(apiUrl, urlParams);
-			get.setParams(parameters);
-			
-			HttpResponse response = MusoniSSLSocketFactory.getNewHttpClient().execute(get);
-			
-			String retStr = EntityUtils.toString(response.getEntity());
-			
-			JSONObject ret = new JSONObject(retStr);
-			
-			return ret;
+			req = prepareGet(apiUrl, urlParams);
+			req.setParams(parameters);		
 		}
+		
+		HandlerWrapper hw = new HandlerWrapper(req, result);
 	}
 	
 	
@@ -184,26 +181,12 @@ public class InternetService implements IService {
 		// TODO Auto-generated method stub
 		
 		try{
-			JSONObject response = getJSON("clients", new HashMap<String, String>(), "POST", prm);
-			if(response != null && !response.has("errors"))
-			{
-				result.setResult(response);
-				result.setStatus(ResultHandler.SUCCESS);
-				result.success();
-			}
-			else{
-				result.setStatus(ResultHandler.ERROR);
-				result.setResult(response.getJSONObject("errors"));
-				result.setReason("Error while creating a client");
-				result.fail();
-			}
-				
+			 getJSON("clients", new HashMap<String, String>(), "POST", prm, result);
+			
 		}
 		catch(Exception ex)
 		{
-			result.setStatus(ResultHandler.ERROR);
-			result.setReason(ex.getMessage().toString());
-			result.fail();
+			
 		}
 			
 		
@@ -216,25 +199,12 @@ public class InternetService implements IService {
 			HashMap<String, String> params = new HashMap<String, String>();
 			params.put("query", name);
 			params.put("resource", "clients");
-			JSONObject response = getJSON("search", params, "GET", null);
-			if(response != null && !response.has("errors"))
-			{
-				result.setResult(response);
-				result.setStatus(ResultHandler.SUCCESS);
-				result.success();
-			}
-			else{
-				result.setStatus(ResultHandler.ERROR);
-				result.setResult(response.getJSONObject("errors"));
-				result.setReason("Error while searching for a client by name");
-				result.fail();
-			}
+			getJSON("search", params, "GET", null, result);
+			
 		}
 		catch(Exception ex)
 		{
-			result.setStatus(ResultHandler.ERROR);
-			result.setReason(ex.getMessage().toString());
-			result.fail();
+			
 		}
 		
 	}
@@ -245,25 +215,12 @@ public class InternetService implements IService {
 			HashMap<String, String> params = new HashMap<String, String>();
 			params.put("query", id.toString());
 			params.put("resource", "clients");
-			JSONObject response = getJSON("search", params, "GET", null);
-			if(response != null && !response.has("errors"))
-			{
-				result.setResult(response);
-				result.setStatus(ResultHandler.SUCCESS);
-				result.success();
-			}
-			else{
-				result.setStatus(ResultHandler.ERROR);
-				result.setResult(response.getJSONObject("errors"));
-				result.setReason("Error while searching for a client by id");
-				result.fail();
-			}
+			getJSON("search", params, "GET", null, result);
+			
 		}
 		catch(Exception ex)
 		{
-			result.setStatus(ResultHandler.ERROR);
-			result.setReason(ex.getMessage().toString());
-			result.fail();
+			
 		}
 		
 	}
@@ -273,26 +230,11 @@ public class InternetService implements IService {
 		// TODO Auto-generated method stub
 		
 		try{
-			JSONObject response = getJSON("groups", new HashMap<String, String>(), "POST", prm);
-			if(response != null && !response.has("errors"))
-			{
-				result.setResult(response);
-				result.setStatus(ResultHandler.SUCCESS);
-				result.success();
-			}
-			else{
-				result.setStatus(ResultHandler.ERROR);
-				result.setResult(response.getJSONObject("errors"));
-				result.setReason("Error while creating a group");
-				result.fail();
-			}
-				
+			getJSON("groups", new HashMap<String, String>(), "POST", prm, result);
 		}
 		catch(Exception ex)
 		{
-			result.setStatus(ResultHandler.ERROR);
-			result.setReason(ex.getMessage().toString());
-			result.fail();
+			
 		}		
 		
 	}
@@ -303,25 +245,11 @@ public class InternetService implements IService {
 			HashMap<String, String> params = new HashMap<String, String>();
 			params.put("query", groupName);
 			params.put("resource", "groups");
-			JSONObject response = getJSON("search", params, "GET", null);
-			if(response != null && !response.has("errors"))
-			{
-				result.setResult(response);
-				result.setStatus(ResultHandler.SUCCESS);
-				result.success();
-			}
-			else{
-				result.setStatus(ResultHandler.ERROR);
-				result.setResult(response.getJSONObject("errors"));
-				result.setReason("Error while searching for a group by name");
-				result.fail();
-			}
+			getJSON("search", params, "GET", null, result);
+			
 		}
 		catch(Exception ex)
 		{
-			result.setStatus(ResultHandler.ERROR);
-			result.setReason(ex.getMessage().toString());
-			result.fail();
 		}
 	}
 	
@@ -331,54 +259,23 @@ public class InternetService implements IService {
 			HashMap<String, String> params = new HashMap<String, String>();
 			params.put("query", id.toString());
 			params.put("resource", "groups");
-			JSONObject response = getJSON("search", params, "GET", null);
-			if(response != null && !response.has("errors"))
-			{
-				result.setResult(response);
-				result.setStatus(ResultHandler.SUCCESS);
-				result.success();
-			}
-			else{
-				result.setStatus(ResultHandler.ERROR);
-				result.setResult(response.getJSONObject("errors"));
-				result.setReason("Error while searching for a group by name");
-				result.fail();
-			}
+			getJSON("search", params, "GET", null, result);			
 		}
 		catch(Exception ex)
 		{
-			result.setStatus(ResultHandler.ERROR);
-			result.setReason(ex.getMessage().toString());
-			result.fail();
 		}
 	}
 
 	@Override
 	public void applyLoan(JSONObject prm, ResultHandler result) {
 		try{
-			JSONObject response = getJSON("loans", new HashMap<String, String>(), "POST", prm);
-			if(response != null && !response.has("errors"))
-			{
-				result.setResult(response);
-				result.setStatus(ResultHandler.SUCCESS);
-				result.success();
-			}
-			else{
-				result.setStatus(ResultHandler.ERROR);
-				result.setResult(response.getJSONObject("errors"));
-				result.setReason("Error while creating a loan application");
-				result.fail();
-			}
-				
+			getJSON("loans", new HashMap<String, String>(), "POST", prm, result);
+						
 		}
 		catch(Exception ex)
 		{
-			result.setStatus(ResultHandler.ERROR);
-			result.setReason(ex.getMessage().toString());
-			result.fail();
-		}
-		
-		
+			
+		}		
 	}
 
 	@Override
@@ -387,29 +284,12 @@ public class InternetService implements IService {
 			HashMap<String, String> params = new HashMap<String, String>();
 			params.put("command", "calculateLoanSchedule");
 			
-			JSONObject response = getJSON("loans", params, "POST", prm);
-			if(response != null && !response.has("errors"))
-			{
-				result.setResult(response);
-				result.setStatus(ResultHandler.SUCCESS);
-				result.success();
-			}
-			else{
-				result.setStatus(ResultHandler.ERROR);
-				result.setResult(response.getJSONObject("errors"));
-				result.setReason("Error while getting a repayment schedule");
-				result.fail();
-			}
-				
+			getJSON("loans", params, "POST", prm, result);
+							
 		}
 		catch(Exception ex)
 		{
-			result.setStatus(ResultHandler.ERROR);
-			result.setReason(ex.getMessage().toString());
-			result.fail();
-		}
-			
-		
+		}	
 	}
 
 	@Override
@@ -437,26 +317,12 @@ public class InternetService implements IService {
 		try{
 			HashMap<String, String> params = new HashMap<String, String>();
 						
-			JSONObject response = getJSON("clients/"+clientId.toString(), params, "PUT", prm);
-			if(response != null && !response.has("errors"))
-			{
-				result.setResult(response);
-				result.setStatus(ResultHandler.SUCCESS);
-				result.success();
-			}
-			else{
-				result.setStatus(ResultHandler.ERROR);
-				result.setResult(response.getJSONObject("errors"));
-				result.setReason("Error while updating the client");
-				result.fail();
-			}
-				
+			getJSON("clients/"+clientId.toString(), params, "PUT", prm, result);
+							
 		}
 		catch(Exception ex)
 		{
-			result.setStatus(ResultHandler.ERROR);
-			result.setReason(ex.getMessage().toString());
-			result.fail();
+			
 		}
 		
 	}
@@ -466,27 +332,11 @@ public class InternetService implements IService {
 		try{
 			HashMap<String, String> params = new HashMap<String, String>();
 			
-			
-			JSONObject response = getJSON("clients/"+clientId.toString(), params, "DELETE", null);
-			if(response != null && !response.has("errors"))
-			{
-				result.setResult(response);
-				result.setStatus(ResultHandler.SUCCESS);
-				result.success();
-			}
-			else{
-				result.setStatus(ResultHandler.ERROR);
-				result.setResult(response.getJSONObject("errors"));
-				result.setReason("Error while deleting a client");
-				result.fail();
-			}
-				
+			getJSON("clients/"+clientId.toString(), params, "DELETE", null, result);	
 		}
 		catch(Exception ex)
 		{
-			result.setStatus(ResultHandler.ERROR);
-			result.setReason(ex.getMessage().toString());
-			result.fail();
+			
 		}
 		
 	}
@@ -498,26 +348,10 @@ public class InternetService implements IService {
 			
 			JSONObject prm = new JSONObject().put("staffId", userId);
 			
-			JSONObject response = getJSON("clients/"+clientId.toString(), params, "POST", prm);
-			if(response != null && !response.has("errors"))
-			{
-				result.setResult(response);
-				result.setStatus(ResultHandler.SUCCESS);
-				result.success();
-			}
-			else{
-				result.setStatus(ResultHandler.ERROR);
-				result.setResult(response.getJSONObject("errors"));
-				result.setReason("Error while assigning staff");
-				result.fail();
-			}
-				
+			getJSON("clients/"+clientId.toString(), params, "POST", prm, result);	
 		}
 		catch(Exception ex)
 		{
-			result.setStatus(ResultHandler.ERROR);
-			result.setReason(ex.getMessage().toString());
-			result.fail();
 		}
 		
 	}
@@ -533,26 +367,11 @@ public class InternetService implements IService {
 			prm.put("dateFormat", "dd MMMM yyyy");
 			prm.put("activationDate", "");
 			
-			JSONObject response = getJSON("loans", params, "POST", prm);
-			if(response != null && !response.has("errors"))
-			{
-				result.setResult(response);
-				result.setStatus(ResultHandler.SUCCESS);
-				result.success();
-			}
-			else{
-				result.setStatus(ResultHandler.ERROR);
-				result.setResult(response.getJSONObject("errors"));
-				result.setReason("Error while getting a repayment schedule");
-				result.fail();
-			}
-				
+			getJSON("loans", params, "POST", prm, result);	
 		}
 		catch(Exception ex)
 		{
-			result.setStatus(ResultHandler.ERROR);
-			result.setReason(ex.getMessage().toString());
-			result.fail();
+			
 		}
 		
 	}
