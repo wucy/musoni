@@ -14,6 +14,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Base64;
 
@@ -24,7 +25,7 @@ public class InternetService implements IService {
 		
 	}
 
-	public static class HandlerWrapper implements Runnable{
+	public static class HandlerWrapper extends AsyncTask<Void,Void,Void> implements Runnable{
 		
 		private HttpUriRequest req = null;
 		private ResultHandler result = null;
@@ -62,6 +63,13 @@ public class InternetService implements IService {
 				result.fail();
 			}
 			
+		}
+
+		@Override
+		protected Void doInBackground(Void... arg0) {
+						
+			run();
+			return null;
 		}
 	}
 	
@@ -167,9 +175,10 @@ public class InternetService implements IService {
 			req.setParams(parameters);		
 		}
 		
-		HandlerWrapper hw = new HandlerWrapper(req, result);
-		Handler hand = new Handler();
-		hand.post(hw);
+		HandlerWrapper hw = new HandlerWrapper(req, result);	
+		hw.execute();
+		//Handler hand = new Handler();
+		//hand.post(hw);
 	}
 	
 	
