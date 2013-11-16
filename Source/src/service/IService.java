@@ -4,6 +4,12 @@ import org.json.JSONObject;
 
 public interface IService {
 	
+	//HELPER FUNCTIONS
+	
+	JSONObject getJSON(String apiUrl, String method);
+	
+	void authenticate(String user, String password);
+	
 	//CLIENTS
 
 	void registerClient(JSONObject prm, ResultHandler result);
