@@ -6,6 +6,8 @@ public interface IService {
 	
 	public boolean isActive();
 	
+	public boolean isUserLoggedIn();
+	
 	//HELPER FUNCTIONS
 	
 	//JSONObject getJSON(String apiUrl, String method, JSONObject prm);
@@ -20,9 +22,9 @@ public interface IService {
 
 	void registerClient(JSONObject prm, ResultHandler result);
 	
-	void searchClientsByName(JSONObject prm, ResultHandler result);
+	void searchClientsByName(String name, ResultHandler result);
 	
-	void searchClientsByID(JSONObject prm, ResultHandler result);
+	void searchClientsByID(Integer id, ResultHandler result);
 	
 	//GROUPS
 	
