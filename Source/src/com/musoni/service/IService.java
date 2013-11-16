@@ -8,7 +8,7 @@ public interface IService {
 	
 	JSONObject getJSON(String apiUrl, String method);
 	
-	void authenticate(String user, String password);
+	void authenticate(String user, String password, ResultHandler result);
 	
 	//OFFICER
 	

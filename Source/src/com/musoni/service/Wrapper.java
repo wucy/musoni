@@ -17,17 +17,24 @@ import org.json.JSONObject;
 public class Wrapper implements IService {
 	
 	private String authCode = "", baseURL = "https://mlite-demo.musoni.eu:8443/mifosng-provider/api/v1/", tenantIdentifier = "code4good";
-	
-	
-	public void authenticate(String user, String password){
-		try{
-						
-		}
-		catch (Exception ex){
-			
+		
+	public void authenticate(String user, String password, ResultHandler result){
+		
+		JSONObject response = getJSON("authentication?username=" + user + "&password=" + password, "POST");
+		
+		if(response.has("base64EncodedAuthenticationKey")){
+			try {
+				authCode = response.getString("base64EncodedAuthenticationKey");
+				result.success();
+				
+				
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				result.fail();
+			}	
 		}
 		
-		//authCode = response
+		
 	}
 	
 	
@@ -45,7 +52,11 @@ public class Wrapper implements IService {
 			if(method.toLowerCase() == "post")
 			{
 				HttpPost post = new HttpPost(apiUrl);
-				post.setHeader("Authorization", "Basic "+authCode);
+				if(!authCode.equals(""))		//Used when authenticating before authorization
+					post.setHeader("Authorization", "Basic "+authCode);
+				
+				post.setHeader("contentType","application/json; charset=utf-8");
+				post.setHeader("dataType", "json");
 				HttpResponse response = client.execute(post);
 				HttpEntity entity = response.getEntity();
 				is = entity.getContent();				
@@ -54,7 +65,11 @@ public class Wrapper implements IService {
 			if(method.toLowerCase() == "get")
 			{
 				HttpGet get = new HttpGet(apiUrl);
-				get.setHeader("Authorization", "Basic "+authCode);
+				if(!authCode.equals(""))	//Used when authenticating before authorization
+					get.setHeader("Authorization", "Basic "+authCode);
+				
+				get.setHeader("contentType","application/json; charset=utf-8");
+				get.setHeader("dataType", "json");
 				HttpResponse response = client.execute(get);
 				HttpEntity entity = response.getEntity();
 				is = entity.getContent();	
