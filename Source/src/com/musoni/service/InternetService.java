@@ -22,7 +22,7 @@ public class InternetService implements IService {
 	}
 	
 	private String authCode = null ;
-	
+		
 	private boolean active = false;
 	
 	public static final String baseURL = "https://mlite-demo.musoni.eu:8443/mifosng-provider/api/v1/";
@@ -40,6 +40,7 @@ public class InternetService implements IService {
 		try {
 			JSONObject ret = getJSON(baseURL+"authentication", params, "post", null);
 			result.setStatus(ResultHandler.SUCCESS);
+			active = true;
 			result.setResult(ret);
 			result.success();
 		}
@@ -327,7 +328,7 @@ public class InternetService implements IService {
 	@Override
 	public void applyLoan(JSONObject prm, ResultHandler result) {
 		try{
-			JSONObject response = getJSON("clients", new HashMap<String, String>(), "POST", prm);
+			JSONObject response = getJSON("loans", new HashMap<String, String>(), "POST", prm);
 			if(response != null || !response.has("ERROR"))
 			{
 				result.setResult(response);
@@ -371,7 +372,7 @@ public class InternetService implements IService {
 	@Override
 	public boolean isUserLoggedIn() {
 		// TODO Auto-generated method stub
-		return false;
+		return active;
 	}
 
 }
