@@ -6,7 +6,7 @@ public interface IService {
 	
 	//HELPER FUNCTIONS
 	
-	JSONObject getJSON(String apiUrl, String method);
+	JSONObject getJSON(String apiUrl, String method, JSONObject prm);
 	
 	void authenticate(String user, String password, ResultHandler result);
 	
