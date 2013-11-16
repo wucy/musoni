@@ -14,6 +14,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.os.Handler;
 import android.util.Base64;
 
 public class InternetService implements IService {
@@ -167,6 +168,7 @@ public class InternetService implements IService {
 		}
 		
 		HandlerWrapper hw = new HandlerWrapper(req, result);
+		new Handler().post(hw);
 	}
 	
 	
