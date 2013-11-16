@@ -54,7 +54,7 @@ public class Wrapper implements IService {
 			HttpClient client = new DefaultHttpClient();
 			InputStream is = null;		//Response stream
 			
-			if(method.toLowerCase() == "post")
+			if(method.toLowerCase().equals("post"))
 			{
 				HttpPost post = new HttpPost(apiUrl);
 				if(!authCode.equals(""))		//Used when authenticating before authorization
@@ -80,7 +80,7 @@ public class Wrapper implements IService {
 				is = entity.getContent();				
 			}
 			
-			if(method.toLowerCase() == "get")
+			if(method.toLowerCase().equals("get"))
 			{
 				HttpGet get = new HttpGet(apiUrl);
 				if(!authCode.equals(""))	//Used when authenticating before authorization
@@ -123,7 +123,21 @@ public class Wrapper implements IService {
 	public void registerClient(JSONObject prm, ResultHandler result) {
 		// TODO Auto-generated method stub
 		
-		
+		try{
+			JSONObject response = getJSON("clients", "POST", prm);
+			if(response != null || !response.has("ERROR"))
+			{
+				result.result = response;
+				result.success();
+			}
+			else
+				result.fail();
+		}
+		catch(Exception ex)
+		{
+			result.fail();
+		}
+			
 		
 	}
 
