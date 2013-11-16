@@ -25,7 +25,7 @@ public class Wrapper implements IService {
 		
 	public void authenticate(String user, String password, ResultHandler result){
 		
-		JSONObject response = getJSON("authentication?username=" + user + "&password=" + password, "POST", null);
+		JSONObject response = getJSON("authentication?username=" + user + "&password=" + password, "POST", new JSONObject());
 		
 		if(response.has("base64EncodedAuthenticationKey")){
 			try {
