@@ -29,5 +29,17 @@ public abstract class ResultHandler {
 	public String getReason() {
 		return reason;
 	}
+	
+	public void setResult(JSONObject result) {
+		this.result = result;
+	}
+	
+	public void setStatus(int status) {
+		this.status = status;
+	}
+	
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
 }
  

@@ -4,9 +4,11 @@ import org.json.JSONObject;
 
 public interface IService {
 	
+	public boolean isActive();
+	
 	//HELPER FUNCTIONS
 	
-	JSONObject getJSON(String apiUrl, String method, JSONObject prm);
+	//JSONObject getJSON(String apiUrl, String method, JSONObject prm);
 	
 	void authenticate(String user, String password, ResultHandler result);
 	

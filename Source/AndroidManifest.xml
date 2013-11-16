@@ -25,6 +25,8 @@
         <uses-library android:name="android.test.runner" />
     </application>
     
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    
 	<instrumentation android:name="android.test.InstrumentationTestRunner"
     android:targetPackage="com.musoni"
     android:label="AuthTest" />

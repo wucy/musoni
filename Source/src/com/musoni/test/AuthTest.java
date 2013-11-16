@@ -15,8 +15,7 @@ public class AuthTest extends AndroidTestCase {
 
 			@Override
 			public void success() {
-				System.out.println(getReason());
-				assertEquals(getReason(), "");
+				System.out.println(getResult().toString());
 			}
 
 			@Override

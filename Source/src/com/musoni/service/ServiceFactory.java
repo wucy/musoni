@@ -7,7 +7,7 @@ public class ServiceFactory {
 	public static synchronized IService getService() {
 		
 		if (_instance == null)
-			_instance = new Wrapper();
+			_instance = new InternetService();
 
 		return _instance;
 	}
