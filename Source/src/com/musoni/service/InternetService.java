@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
@@ -76,20 +76,42 @@ public class InternetService implements IService {
 		return post;
 	}
 	
+	private HttpGet prepareGet(String api, Map<String, String> urlParams) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(api);
+		sb.append("?");
+		for(String key: urlParams.keySet()) {
+			sb.append(key);
+			sb.append("=");
+			sb.append(urlParams.get(key));
+			sb.append("&");
+		}
+		sb.append("tenantIdentifier=" + tenantIdentifier);
+		
+		String url = sb.toString();
+		
+		HttpGet get = new HttpGet(url);
+		get.setHeader("Content-Type", "application/json");
+		if (authCode != null)
+			get.setHeader("Authorization", "Basic " + authCode);
+		
+		return get;
+	}
+	
 	@SuppressLint("DefaultLocale")
 	public JSONObject getJSON(String apiUrl, Map<String, String> urlParams, String method, JSONObject prm) throws Exception {
+
+		BasicHttpParams parameters = new BasicHttpParams();
+		for(String key: urlParams.keySet()) 
+			parameters.setParameter(key, urlParams.get(key));
+		
 		if (method.toLowerCase().equals("post")) {
 			
 			HttpPost post = preparePost(apiUrl, urlParams);
-			
-			BasicHttpParams parameters = new BasicHttpParams();
-			for(String key: urlParams.keySet()) 
-				parameters.setParameter(key, urlParams.get(key));
-			
 			post.setParams(parameters);
+			
 			if (prm != null) {
 				StringEntity p = new StringEntity(prm.toString());
-			
 				post.setEntity(p);
 			}
 			
@@ -102,8 +124,16 @@ public class InternetService implements IService {
 			return ret;
 		}
 		else {
-			// TODO
-			return null;
+			HttpGet get = prepareGet(apiUrl, urlParams);
+			get.setParams(parameters);
+			
+			HttpResponse response = MusoniSSLSocketFactory.getNewHttpClient().execute(get);
+			
+			String retStr = EntityUtils.toString(response.getEntity());
+			
+			JSONObject ret = new JSONObject(retStr);
+			
+			return ret;
 		}
 	}
 	
@@ -112,86 +142,7 @@ public class InternetService implements IService {
 		return this.active;
 	}
 	
-	//Function to get JSON from URL
-	/*
-	public JSONObject getJSON(String apiUrl, String method, JSONObject prm)		 //method = 'POST' || 'GET'
-	{	 
-		apiUrl = baseURL +apiUrl;
-		if(apiUrl.contains("?"))
-			apiUrl+="&";
-		
-		apiUrl+="tenantIdentifier="+tenantIdentifier;	//Create the basic url to get data
-			
-		try{													//try to connect to the server
-			
-			HttpClient client = new DefaultHttpClient();
-			InputStream is = null;		//Response stream
-			
-			if(method.toLowerCase().equals("post"))
-			{
-				HttpPost post = new HttpPost(apiUrl);
-				if(!authCode.equals(""))		//Used when authenticating before authorization
-					post.setHeader("Authorization", "Basic "+authCode);
-				
-				post.setHeader("contentType","application/json; charset=utf-8");
-				post.setHeader("dataType", "json");
-				
-				if(prm != null)
-				{			
-					List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-					 while(prm.keys().hasNext())
-					 {
-						 String key = prm.keys().next().toString();
-						 nameValuePairs.add(new BasicNameValuePair(key, prm.getString(key)));
-					 }
-					 post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-				
-				}
-				
-				HttpResponse response = client.execute(post);
-				HttpEntity entity = response.getEntity();
-				is = entity.getContent();				
-			}
-			
-			if(method.toLowerCase().equals("get"))
-			{
-				HttpGet get = new HttpGet(apiUrl);
-				if(!authCode.equals(""))	//Used when authenticating before authorization
-					get.setHeader("Authorization", "Basic "+authCode);
-				
-				get.setHeader("contentType","application/json; charset=utf-8");
-				get.setHeader("dataType", "json");
-				HttpResponse response = client.execute(get);
-				HttpEntity entity = response.getEntity();
-				is = entity.getContent();	
-			}
-			
-			try{		//Try to read the response as JSON
-				
-				BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-				StringBuilder sb = new StringBuilder();
-				String line = null;
-				while ((line = reader.readLine()) !=null)
-				{
-					sb.append(line+"\n");
-				}
-				is.close();
-				
-				JSONObject json = new JSONObject(sb.toString());
-				
-				return json; //Return JSON from the API
-			}
-			catch(Exception e){
-				return new JSONObject().put("ERROR", "Error while reading the input stream: "+e.getMessage());
-			}			
-		}
-		catch (Exception ex){		//The server is offline or something went wrong
-			//return new JSONObject().put("ERROR", "Error while communicating with the server, might be offline: "+ex.getMessage());
-		}
-		
-		return null;
-	}
-*/
+
 	@SuppressWarnings("null")
 	@Override
 	public void registerClient(JSONObject prm, ResultHandler result) {
