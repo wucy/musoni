@@ -10,6 +10,10 @@ public interface IService {
 	
 	void authenticate(String user, String password);
 	
+	//OFFICER
+	
+	void getOfficerDetails(JSONObject prm, ResultHandler result);
+	
 	//CLIENTS
 
 	void registerClient(JSONObject prm, ResultHandler result);

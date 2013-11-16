@@ -1,19 +1,27 @@
 package com.musoni.service;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Wrapper implements IService {
 	
-	private String authCode = "";
+	private String authCode = "", baseURL = "https://mlite-demo.musoni.eu:8443/mifosng-provider/api/v1/", tenantIdentifier = "code4good";
 	
 	
 	public void authenticate(String user, String password){
 		try{
-			
+						
 		}
 		catch (Exception ex){
 			
@@ -25,31 +33,55 @@ public class Wrapper implements IService {
 	
 	//Function to get JSON from URL
 	
-	public JSONObject getJSON(String apiUrl, String method)		//method = 'POST' || 'GET'
-	{
-		try{
+	public JSONObject getJSON(String apiUrl, String method)		 //method = 'POST' || 'GET'
+	{	 
+		apiUrl = baseURL +apiUrl+"?tenantIdentifier="+tenantIdentifier;	//Create the basic url to get data
+			
+		try{													//try to connect to the server
 			
 			HttpClient client = new DefaultHttpClient();
-			HttpPost post = new HttpPost(apiUrl);
-			post.setHeader("Authorization", authCode);
+			InputStream is = null;		//Response stream
 			
 			if(method.toLowerCase() == "post")
 			{
-				
+				HttpPost post = new HttpPost(apiUrl);
+				post.setHeader("Authorization", "Basic "+authCode);
+				HttpResponse response = client.execute(post);
+				HttpEntity entity = response.getEntity();
+				is = entity.getContent();				
 			}
 			
 			if(method.toLowerCase() == "get")
 			{
-				
+				HttpGet get = new HttpGet(apiUrl);
+				get.setHeader("Authorization", "Basic "+authCode);
+				HttpResponse response = client.execute(get);
+				HttpEntity entity = response.getEntity();
+				is = entity.getContent();	
 			}
 			
-			HttpResponse response = client.execute(post);
-			
+			try{		//Try to read the response as JSON
+				
+				BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+				StringBuilder sb = new StringBuilder();
+				String line = null;
+				while ((line = reader.readLine()) !=null)
+				{
+					sb.append(line+"\n");
+				}
+				is.close();
+				
+				JSONObject json = new JSONObject(sb.toString());
+				
+				return json; //Return JSON from the API
+			}
+			catch(Exception e){
+				return new JSONObject().put("ERROR", "Error while reading the input stream: "+e.getMessage());
+			}			
 		}
 		catch (Exception ex){		//The server is offline or something went wrong
-			
+			//return new JSONObject().put("ERROR", "Error while communicating with the server, might be offline: "+ex.getMessage());
 		}
-		
 		
 		return null;
 	}
@@ -98,6 +130,13 @@ public class Wrapper implements IService {
 
 	@Override
 	public void businessVist(JSONObject prm, ResultHandler result) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void getOfficerDetails(JSONObject prm, ResultHandler result) {
 		// TODO Auto-generated method stub
 		
 	}
