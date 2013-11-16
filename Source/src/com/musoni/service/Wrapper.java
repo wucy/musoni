@@ -30,8 +30,8 @@ public class Wrapper implements IService {
 		if(response.has("base64EncodedAuthenticationKey")){
 			try {
 				authCode = response.getString("base64EncodedAuthenticationKey");
+				result.reason = authCode;
 				result.success();
-				
 				
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
