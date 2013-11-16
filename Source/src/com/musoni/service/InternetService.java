@@ -168,7 +168,8 @@ public class InternetService implements IService {
 		}
 		
 		HandlerWrapper hw = new HandlerWrapper(req, result);
-		new Handler().post(hw);
+		Handler hand = new Handler();
+		hand.post(hw);
 	}
 	
 	
