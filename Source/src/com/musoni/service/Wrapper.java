@@ -47,7 +47,11 @@ public class Wrapper implements IService {
 	
 	public JSONObject getJSON(String apiUrl, String method, JSONObject prm)		 //method = 'POST' || 'GET'
 	{	 
-		apiUrl = baseURL +apiUrl+"?tenantIdentifier="+tenantIdentifier;	//Create the basic url to get data
+		apiUrl = baseURL +apiUrl;
+		if(apiUrl.contains("?"))
+			apiUrl+="&";
+		
+		apiUrl+="tenantIdentifier="+tenantIdentifier;	//Create the basic url to get data
 			
 		try{													//try to connect to the server
 			
