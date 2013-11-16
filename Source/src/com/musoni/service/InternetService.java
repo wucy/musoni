@@ -28,7 +28,7 @@ public class InternetService implements IService {
 		
 	}
 
-	public static class HandlerWrapper extends AsyncTask<Void,Void,Void> implements Runnable{
+	public class HandlerWrapper extends AsyncTask<Void,Void,Void> implements Runnable{
 		
 		private HttpUriRequest req = null;
 		private ResultHandler result = null;
@@ -49,6 +49,14 @@ public class InternetService implements IService {
 				
 				if(response != null && !response.has("errors"))
 				{
+					
+					if(response.has("authenticated"))
+					{
+						active = true;
+						userId = response.getString("userId");
+						username = response.getString("username");
+					}
+					
 					result.setResult(response);
 					result.setStatus(ResultHandler.SUCCESS);
 					result.success();
@@ -97,13 +105,7 @@ public class InternetService implements IService {
 		params.put("password", password);
 		
 		try {
-			getJSON(baseURL+"authentication", params, "post", null, result);
-			/*userId = ret.getString("userId");
-			username = ret.getString("username");
-			result.setStatus(ResultHandler.SUCCESS);
-			active = true;
-			result.setResult(ret);
-			result.success();*/
+			getJSON(baseURL+"authentication", params, "post", null, result);			
 		}
 		catch(Exception e) {
 			
