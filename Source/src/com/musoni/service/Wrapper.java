@@ -20,6 +20,12 @@ import org.json.JSONObject;
 
 public class Wrapper implements IService {
 	
+	public Wrapper()
+	{
+		
+	}
+	
+	
 	private String authCode = "", baseURL = "https://mlite-demo.musoni.eu:8443/mifosng-provider/api/v1/", tenantIdentifier = "code4good";
 		
 	public void authenticate(String user, String password, ResultHandler result){
