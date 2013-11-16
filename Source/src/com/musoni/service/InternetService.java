@@ -1,33 +1,14 @@
 package com.musoni.service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.SingleClientConnManager;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
@@ -50,14 +31,14 @@ public class InternetService implements IService {
 		
 	public void authenticate(String user, String password, ResultHandler result){
 		
-		authCode = new String(Base64.encode((user + ":" + password).getBytes(), Base64.DEFAULT));
+		authCode = new String(Base64.encode((user + ":" + password).getBytes(), Base64.DEFAULT)).trim();
 		
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("username", user);
 		params.put("password", password);
 		
 		try {
-			JSONObject ret = getJSON(baseURL, params, "post", null);
+			JSONObject ret = getJSON(baseURL+"authentication", params, "post", null);
 			result.setStatus(ResultHandler.SUCCESS);
 			result.setResult(ret);
 			result.success();
@@ -79,7 +60,7 @@ public class InternetService implements IService {
 		sb.append("?");
 		for(String key: urlParams.keySet()) {
 			sb.append(key);
-			sb.append(":");
+			sb.append("=");
 			sb.append(urlParams.get(key));
 			sb.append("&");
 		}
@@ -101,22 +82,18 @@ public class InternetService implements IService {
 			
 			HttpPost post = preparePost(apiUrl, urlParams);
 			
+			BasicHttpParams parameters = new BasicHttpParams();
+			for(String key: urlParams.keySet()) 
+				parameters.setParameter(key, urlParams.get(key));
+			
+			post.setParams(parameters);
 			if (prm != null) {
 				StringEntity p = new StringEntity(prm.toString());
 			
 				post.setEntity(p);
 			}
 			
-			SchemeRegistry schemeRegistry = new SchemeRegistry();
-			schemeRegistry.register(new Scheme("https", 
-			            SSLSocketFactory.getSocketFactory(), 443));
-
-			HttpParams params = new BasicHttpParams();
-
-			SingleClientConnManager mgr = new SingleClientConnManager(params, schemeRegistry);
-
-			
-			HttpResponse response = new DefaultHttpClient(mgr, params).execute(post);
+			HttpResponse response = MusoniSSLSocketFactory.getNewHttpClient().execute(post);
 			
 			String retStr = EntityUtils.toString(response.getEntity());
 			
