@@ -36,7 +36,9 @@ public interface IService {
 	
 	void activateClient(Integer clientId, ResultHandler result);
 	
-	void addIDFroClient(Integer clientId, JSONObject prm, ResultHandler result);
+	void addIDForClient(Integer clientId, JSONObject prm, ResultHandler result);
+	
+	void listIDsForClient(Integer clientId, JSONObject prm, ResultHandler result);
 	
 	//GROUPS
 	
@@ -56,7 +58,7 @@ public interface IService {
 	
 	void disassociateClients(Integer groupId, JSONObject prm, ResultHandler result);
 	
-	void getGroupAccounts(Integer groupId, JSONObject prm, ResultHandler result);
+	void getGroupAccounts(Integer groupId, ResultHandler result);
 	
 	void activateGroup(Integer groupId, ResultHandler result);
 	
