@@ -224,14 +224,19 @@ public class InternetService implements IService {
 			JSONObject response = getJSON("clients", new HashMap<String, String>(), "POST", prm);
 			if(response != null || !response.has("ERROR"))
 			{
-				result.result = response;
+				result.setResult(response);
+				result.setStatus(ResultHandler.SUCCESS);
 				result.success();
 			}
-			else
+			else{
+				result.setStatus(ResultHandler.ERROR);
 				result.fail();
+			}
+				
 		}
 		catch(Exception ex)
 		{
+			result.setStatus(ResultHandler.ERROR);
 			result.fail();
 		}
 			
@@ -239,14 +244,55 @@ public class InternetService implements IService {
 	}
 
 	@Override
-	public void searchClientsByName(JSONObject prm, ResultHandler result) {
-		// TODO Auto-generated method stub
+	public void searchClientsByName(String name, ResultHandler result) {
+		
+		try{
+			HashMap<String, String> params = new HashMap<String, String>();
+			params.put("query", name);
+			params.put("resource", "clients");
+			JSONObject response = getJSON("search", params, "GET", null);
+			if(response != null || !response.has("ERROR"))
+			{
+				result.setResult(response);
+				result.setStatus(ResultHandler.SUCCESS);
+				result.success();
+			}
+			else{
+				result.setStatus(ResultHandler.ERROR);
+				result.fail();
+			}
+		}
+		catch(Exception ex)
+		{
+			result.setStatus(ResultHandler.ERROR);
+			result.fail();
+		}
 		
 	}
 
 	@Override
-	public void searchClientsByID(JSONObject prm, ResultHandler result) {
-		// TODO Auto-generated method stub
+	public void searchClientsByID(Integer id, ResultHandler result) {
+		try{
+			HashMap<String, String> params = new HashMap<String, String>();
+			params.put("query", id.toString());
+			params.put("resource", "clients");
+			JSONObject response = getJSON("search", params, "GET", null);
+			if(response != null || !response.has("ERROR"))
+			{
+				result.setResult(response);
+				result.setStatus(ResultHandler.SUCCESS);
+				result.success();
+			}
+			else{
+				result.setStatus(ResultHandler.ERROR);
+				result.fail();
+			}
+		}
+		catch(Exception ex)
+		{
+			result.setStatus(ResultHandler.ERROR);
+			result.fail();
+		}
 		
 	}
 
@@ -285,6 +331,12 @@ public class InternetService implements IService {
 	public void getOfficerDetails(JSONObject prm, ResultHandler result) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public boolean isUserLoggedIn() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
