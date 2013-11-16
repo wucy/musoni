@@ -2,10 +2,14 @@ package com.musoni.service;
 
 public class ServiceFactory {
 
-	public static IService getService() {
-		// TODO 
+	private static IService _instance;
+	
+	public static synchronized IService getService() {
 		
-		return null;
+		if (_instance == null)
+			_instance = new Wrapper();
+
+		return _instance;
 	}
 	
 }

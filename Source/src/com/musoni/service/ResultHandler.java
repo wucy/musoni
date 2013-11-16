@@ -10,13 +10,24 @@ public abstract class ResultHandler {
 	
 	public static final int SUBMITTED = 0, SUCCESS = 1, ERROR = 2, TIMEOUT = 3;
 	
-	abstract void success();
+	public abstract void success();
 	
-	abstract void fail();
+	public abstract void fail();
 	
-	abstract void timeout();
+	public abstract void timeout();
 	
-	String reason = null;
+	public String reason = null;
 	
+	public JSONObject getResult() {
+		return result;
+	}
+	
+	public int getStatus() {
+		return status;
+	}
+	
+	public String getReason() {
+		return reason;
+	}
 }
  
