@@ -22,7 +22,7 @@ public class InternetService implements IService {
 	}
 	
 	private String authCode = null ;
-	
+		
 	private boolean active = false;
 	
 	public static final String baseURL = "https://mlite-demo.musoni.eu:8443/mifosng-provider/api/v1/";
@@ -40,6 +40,7 @@ public class InternetService implements IService {
 		try {
 			JSONObject ret = getJSON(baseURL+"authentication", params, "post", null);
 			result.setStatus(ResultHandler.SUCCESS);
+			active = true;
 			result.setResult(ret);
 			result.success();
 		}
@@ -228,17 +229,75 @@ public class InternetService implements IService {
 	public void registerGroup(JSONObject prm, ResultHandler result) {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public void searchGroups(JSONObject prm, ResultHandler result) {
-		// TODO Auto-generated method stub
+		try{
+			JSONObject response = getJSON("groups", new HashMap<String, String>(), "POST", prm);
+			if(response != null || !response.has("ERROR"))
+			{
+				result.setResult(response);
+				result.setStatus(ResultHandler.SUCCESS);
+				result.success();
+			}
+			else{
+				result.setStatus(ResultHandler.ERROR);
+				result.fail();
+			}
+				
+		}
+		catch(Exception ex)
+		{
+			result.setStatus(ResultHandler.ERROR);
+			result.fail();
+		}		
 		
 	}
 
 	@Override
+	public void searchGroups(String groupName, ResultHandler result) {
+		try{
+			HashMap<String, String> params = new HashMap<String, String>();
+			params.put("query", groupName);
+			params.put("resource", "groups");
+			JSONObject response = getJSON("search", params, "GET", null);
+			if(response != null || !response.has("ERROR"))
+			{
+				result.setResult(response);
+				result.setStatus(ResultHandler.SUCCESS);
+				result.success();
+			}
+			else{
+				result.setStatus(ResultHandler.ERROR);
+				result.fail();
+			}
+		}
+		catch(Exception ex)
+		{
+			result.setStatus(ResultHandler.ERROR);
+			
+		}
+	}
+
+	@Override
 	public void applyLoan(JSONObject prm, ResultHandler result) {
-		// TODO Auto-generated method stub
+		try{
+			JSONObject response = getJSON("loans", new HashMap<String, String>(), "POST", prm);
+			if(response != null || !response.has("ERROR"))
+			{
+				result.setResult(response);
+				result.setStatus(ResultHandler.SUCCESS);
+				result.success();
+			}
+			else{
+				result.setStatus(ResultHandler.ERROR);
+				result.fail();
+			}
+				
+		}
+		catch(Exception ex)
+		{
+			result.setStatus(ResultHandler.ERROR);
+			result.fail();
+		}
+			
 		
 	}
 
@@ -264,7 +323,7 @@ public class InternetService implements IService {
 	@Override
 	public boolean isUserLoggedIn() {
 		// TODO Auto-generated method stub
-		return false;
+		return active;
 	}
 
 }
