@@ -30,7 +30,7 @@ public interface IService {
 	
 	void registerGroup(JSONObject prm, ResultHandler result);
 	
-	void searchGroups(JSONObject prm, ResultHandler result);
+	void searchGroups(String groupName, ResultHandler result);
 	
 	//LOANS
 	

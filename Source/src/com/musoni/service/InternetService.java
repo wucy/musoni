@@ -300,17 +300,75 @@ public class InternetService implements IService {
 	public void registerGroup(JSONObject prm, ResultHandler result) {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public void searchGroups(JSONObject prm, ResultHandler result) {
-		// TODO Auto-generated method stub
+		try{
+			JSONObject response = getJSON("groups", new HashMap<String, String>(), "POST", prm);
+			if(response != null || !response.has("ERROR"))
+			{
+				result.setResult(response);
+				result.setStatus(ResultHandler.SUCCESS);
+				result.success();
+			}
+			else{
+				result.setStatus(ResultHandler.ERROR);
+				result.fail();
+			}
+				
+		}
+		catch(Exception ex)
+		{
+			result.setStatus(ResultHandler.ERROR);
+			result.fail();
+		}		
 		
 	}
 
 	@Override
+	public void searchGroups(String groupName, ResultHandler result) {
+		try{
+			HashMap<String, String> params = new HashMap<String, String>();
+			params.put("query", groupName);
+			params.put("resource", "groups");
+			JSONObject response = getJSON("search", params, "GET", null);
+			if(response != null || !response.has("ERROR"))
+			{
+				result.setResult(response);
+				result.setStatus(ResultHandler.SUCCESS);
+				result.success();
+			}
+			else{
+				result.setStatus(ResultHandler.ERROR);
+				result.fail();
+			}
+		}
+		catch(Exception ex)
+		{
+			result.setStatus(ResultHandler.ERROR);
+			
+		}
+	}
+
+	@Override
 	public void applyLoan(JSONObject prm, ResultHandler result) {
-		// TODO Auto-generated method stub
+		try{
+			JSONObject response = getJSON("clients", new HashMap<String, String>(), "POST", prm);
+			if(response != null || !response.has("ERROR"))
+			{
+				result.setResult(response);
+				result.setStatus(ResultHandler.SUCCESS);
+				result.success();
+			}
+			else{
+				result.setStatus(ResultHandler.ERROR);
+				result.fail();
+			}
+				
+		}
+		catch(Exception ex)
+		{
+			result.setStatus(ResultHandler.ERROR);
+			result.fail();
+		}
+			
 		
 	}
 
